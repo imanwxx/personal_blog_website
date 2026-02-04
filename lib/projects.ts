@@ -1,8 +1,10 @@
 import fs from 'fs';
 import path from 'path';
+import matter from 'gray-matter';
 
 const DATA_DIR = path.join(process.cwd(), 'data');
 const PROJECTS_FILE = path.join(DATA_DIR, 'projects.json');
+const PROJECTS_CONTENT_DIR = path.join(process.cwd(), 'projects-content');
 
 export interface Project {
   id: string;
@@ -17,12 +19,20 @@ export interface Project {
   featured?: boolean;
   createdAt: string;
   updatedAt: string;
+  content?: string;
 }
 
 // 确保数据目录存在
 function ensureDataDir() {
   if (!fs.existsSync(DATA_DIR)) {
     fs.mkdirSync(DATA_DIR, { recursive: true });
+  }
+}
+
+// 确保项目内容目录存在
+function ensureProjectsContentDir() {
+  if (!fs.existsSync(PROJECTS_CONTENT_DIR)) {
+    fs.mkdirSync(PROJECTS_CONTENT_DIR, { recursive: true });
   }
 }
 
@@ -160,4 +170,37 @@ export async function getAllProjectTags(): Promise<string[]> {
   const projects = readProjectsData();
   const tags = new Set(projects.flatMap(p => p.tags));
   return Array.from(tags);
+}
+
+// 获取项目内容（Markdown）
+export async function getProjectContent(projectId: string): Promise<string | null> {
+  ensureProjectsContentDir();
+  const contentPath = path.join(PROJECTS_CONTENT_DIR, `${projectId}.md`);
+
+  if (!fs.existsSync(contentPath)) {
+    return null;
+  }
+
+  try {
+    const fileContents = fs.readFileSync(contentPath, 'utf8');
+    const { content } = matter(fileContents);
+    return content;
+  } catch (error) {
+    console.error(`Error reading project content for ${projectId}:`, error);
+    return null;
+  }
+}
+
+// 更新项目内容
+export async function updateProjectContent(projectId: string, content: string): Promise<boolean> {
+  ensureProjectsContentDir();
+  const contentPath = path.join(PROJECTS_CONTENT_DIR, `${projectId}.md`);
+
+  try {
+    fs.writeFileSync(contentPath, content, 'utf8');
+    return true;
+  } catch (error) {
+    console.error(`Error writing project content for ${projectId}:`, error);
+    return false;
+  }
 }

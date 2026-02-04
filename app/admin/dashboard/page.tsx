@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Plus, Trash2, Edit, LogOut, Rocket, FileText, Star } from 'lucide-react';
+import { Plus, Trash2, Edit, LogOut, Rocket, FileText, Star, Image as ImageIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface Post {
@@ -283,7 +283,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Quick Links */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <Link
           href="/admin/projects"
           className="glass-effect card-hover rounded-2xl p-6 border border-gray-700 hover:border-blue-500/50 transition-all"
@@ -314,6 +314,21 @@ export default function AdminDashboard() {
             <div>
               <h3 className="text-lg font-bold text-white">随笔管理</h3>
               <p className="text-sm text-gray-400">管理随笔和感悟</p>
+            </div>
+          </div>
+        </Link>
+
+        <Link
+          href="/admin/carousel"
+          className="glass-effect card-hover rounded-2xl p-6 border border-gray-700 hover:border-yellow-500/50 transition-all"
+        >
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-yellow-500 to-orange-500">
+              <ImageIcon className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-white">轮播管理</h3>
+              <p className="text-sm text-gray-400">管理首页轮播图</p>
             </div>
           </div>
         </Link>

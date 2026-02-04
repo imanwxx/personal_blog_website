@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, FolderGit2, ExternalLink, Github, Star, Calendar, Loader2 } from 'lucide-react';
-import Image from 'next/image';
 
 interface Project {
   id: string;
@@ -143,7 +142,13 @@ export default function ProjectsPage() {
         {/* Projects Grid */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredProjects.map((project) => (
-            <ProjectCard key={project.id} project={project} />
+            <Link
+              key={project.id}
+              href={`/projects/${project.id}`}
+              className="group"
+            >
+              <ProjectCard project={project} featured={project.featured} />
+            </Link>
           ))}
         </div>
 
@@ -168,14 +173,13 @@ function ProjectCard({ project, featured = false }: { project: Project; featured
     <div className={`group relative overflow-hidden rounded-2xl bg-gray-800 border border-gray-700 hover:border-blue-500/50 transition-all ${featured ? 'ring-2 ring-yellow-500/30' : ''}`}>
       {/* Image */}
       <div className="relative h-48 overflow-hidden">
-        <Image
+        <img
           src={project.image}
           alt={project.title}
-          fill
-          className="object-cover transition-transform duration-500 group-hover:scale-110"
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent"></div>
-        
+
         {project.featured && (
           <div className="absolute top-4 left-4 flex items-center gap-1 px-3 py-1 rounded-full bg-yellow-500/90 text-white text-sm font-medium">
             <Star className="h-4 w-4" />
@@ -220,7 +224,7 @@ function ProjectCard({ project, featured = false }: { project: Project; featured
             <Calendar className="h-4 w-4" />
             {new Date(project.date).toLocaleDateString('zh-CN')}
           </div>
-          
+
           <div className="flex items-center gap-3">
             {project.githubUrl && (
               <a

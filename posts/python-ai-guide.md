@@ -1,9 +1,14 @@
 ---
-title: "Python人工智能入门指南"
-date: "2026-01-01"
-excerpt: "探索Python在人工智能领域的强大应用，从基础到实践，带你进入AI世界的大门。"
-tags: ["Python", "人工智能", "机器学习", "入门"]
-category: "AI技术"
+title: Python人工智能入门指南
+date: '2026-02-04'
+excerpt: 探索Python在人工智能领域的强大应用，从基础到实践，带你进入AI世界的大门。
+tags:
+  - Python
+  - 人工智能
+  - 机器学习
+  - 入门
+category: AI技术
+featured: true
 ---
 
 # Python人工智能入门指南

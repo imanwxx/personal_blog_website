@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, PenTool, Calendar, Tag, Heart, MessageCircle, Loader2 } from 'lucide-react';
+import { ArrowLeft, PenTool, Calendar, Tag, Loader2 } from 'lucide-react';
 
 interface Essay {
   id: string;
@@ -10,8 +10,6 @@ interface Essay {
   content: string;
   date: string;
   tags: string[];
-  likes: number;
-  comments: number;
   mood?: string;
 }
 
@@ -50,20 +48,6 @@ export default function EssaysPage() {
       }
     } catch (error) {
       console.error('获取标签失败:', error);
-    }
-  };
-
-  const handleLike = async (essayId: string) => {
-    try {
-      const response = await fetch(`/api/essays?action=like&id=${essayId}`);
-      if (response.ok) {
-        const data = await response.json();
-        setEssays(essays.map(e => 
-          e.id === essayId ? { ...e, likes: data.likes } : e
-        ));
-      }
-    } catch (error) {
-      console.error('点赞失败:', error);
     }
   };
 
@@ -174,23 +158,6 @@ export default function EssaysPage() {
                     </span>
                   ))}
                 </div>
-
-                <div className="flex items-center gap-4 text-gray-400">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleLike(essay.id);
-                    }}
-                    className="flex items-center gap-1 hover:text-pink-400 transition-colors"
-                  >
-                    <Heart className="h-4 w-4" />
-                    <span className="text-sm">{essay.likes}</span>
-                  </button>
-                  <div className="flex items-center gap-1">
-                    <MessageCircle className="h-4 w-4" />
-                    <span className="text-sm">{essay.comments}</span>
-                  </div>
-                </div>
               </div>
             </div>
           ))}
@@ -261,19 +228,6 @@ export default function EssaysPage() {
                     {tag}
                   </span>
                 ))}
-              </div>
-
-              <div className="flex items-center justify-between pt-6 border-t border-gray-700">
-                <div className="flex items-center gap-6">
-                  <button className="flex items-center gap-2 text-gray-400 hover:text-pink-400 transition-colors">
-                    <Heart className="h-5 w-5" />
-                    <span>{selectedEssay.likes} 赞</span>
-                  </button>
-                  <button className="flex items-center gap-2 text-gray-400 hover:text-blue-400 transition-colors">
-                    <MessageCircle className="h-5 w-5" />
-                    <span>{selectedEssay.comments} 评论</span>
-                  </button>
-                </div>
               </div>
             </div>
           </div>

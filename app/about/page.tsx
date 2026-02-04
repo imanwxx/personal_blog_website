@@ -1,16 +1,20 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { User, Mail, MapPin, Calendar, Edit2, Save, X, Upload, Image as ImageIcon, Video } from 'lucide-react';
+import { User, Mail, MapPin, Calendar, Edit2, Save, X, Upload, Image as ImageIcon, Video, Plus, Trash2 } from 'lucide-react';
 import Link from 'next/link';
-import AINetwork3D from '@/components/blog/AINetwork3D';
+
+interface Skill {
+  name: string;
+  category: string;
+}
 
 interface AboutData {
   name: string;
   bio: string;
   avatarUrl: string;
   videoUrl: string;
-  skills?: string[];
+  skills?: Skill[];
 }
 
 export default function AboutPage() {
@@ -26,7 +30,9 @@ export default function AboutPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState('');
   const [videoPreview, setVideoPreview] = useState('');
-  const [newSkill, setNewSkill] = useState('');
+  const [newSkillName, setNewSkillName] = useState('');
+  const [newSkillCategory, setNewSkillCategory] = useState('前端开发');
+  const [selectedCategory, setSelectedCategory] = useState<string>('全部');
 
   useEffect(() => {
     fetchAbout();
@@ -145,7 +151,8 @@ export default function AboutPage() {
         setIsEditing(false);
         setAvatarPreview('');
         setVideoPreview('');
-        setNewSkill('');
+        setNewSkillName('');
+        setNewSkillCategory('前端开发');
         alert('保存成功');
       } else {
         const errorData = await response.json();
@@ -159,7 +166,7 @@ export default function AboutPage() {
 
   const handleCancel = () => {
     try {
-      setEditData({ 
+      setEditData({
         name: aboutData.name || '',
         bio: aboutData.bio || '',
         avatarUrl: aboutData.avatarUrl || '',
@@ -169,7 +176,8 @@ export default function AboutPage() {
       setIsEditing(false);
       setAvatarPreview('');
       setVideoPreview('');
-      setNewSkill('');
+      setNewSkillName('');
+      setNewSkillCategory('前端开发');
     } catch (error) {
       console.error('取消编辑时出错:', error);
       // 如果出错，重置到默认状态
@@ -183,17 +191,18 @@ export default function AboutPage() {
       setIsEditing(false);
       setAvatarPreview('');
       setVideoPreview('');
-      setNewSkill('');
+      setNewSkillName('');
+      setNewSkillCategory('前端开发');
     }
   };
 
   const addSkill = () => {
-    if (newSkill.trim()) {
+    if (newSkillName.trim()) {
       setEditData({
         ...editData,
-        skills: [...(editData.skills || []), newSkill.trim()]
+        skills: [...(editData.skills || []), { name: newSkillName.trim(), category: newSkillCategory }]
       });
-      setNewSkill('');
+      setNewSkillName('');
     }
   };
 
@@ -202,6 +211,23 @@ export default function AboutPage() {
       ...editData,
       skills: (editData.skills || []).filter((_, i) => i !== index)
     });
+  };
+
+  const skillCategories = [
+    '前端开发',
+    '后端开发',
+    '人工智能',
+    '机器人',
+    '数据库',
+    '工具框架',
+    '其他'
+  ];
+
+  const getFilteredSkills = () => {
+    if (selectedCategory === '全部') {
+      return aboutData.skills || [];
+    }
+    return (aboutData.skills || []).filter(skill => skill.category === selectedCategory);
   };
 
   return (
@@ -327,14 +353,23 @@ export default function AboutPage() {
                 {/* Skills */}
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-gray-300">
-                    技能点（将显示在3D神经网络中）
+                    技能点（分类管理）
                   </label>
                   <div className="space-y-3">
                     <div className="flex gap-2">
+                      <select
+                        value={newSkillCategory}
+                        onChange={(e) => setNewSkillCategory(e.target.value)}
+                        className="glass-effect rounded-xl border-2 border-blue-500/30 bg-black/40 px-4 py-3 text-white focus:border-blue-500 focus:outline-none min-w-[140px]"
+                      >
+                        {skillCategories.map(category => (
+                          <option key={category} value={category}>{category}</option>
+                        ))}
+                      </select>
                       <input
                         type="text"
-                        value={newSkill}
-                        onChange={(e) => setNewSkill(e.target.value)}
+                        value={newSkillName}
+                        onChange={(e) => setNewSkillName(e.target.value)}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
                             e.preventDefault();
@@ -342,31 +377,45 @@ export default function AboutPage() {
                           }
                         }}
                         className="glass-effect flex-1 rounded-xl border-2 border-blue-500/30 bg-black/40 px-4 py-3 text-white focus:border-blue-500 focus:outline-none"
-                        placeholder="输入技能名称，按回车添加"
+                        placeholder={`输入${newSkillCategory}技能名称，按回车添加`}
                       />
                       <button
                         onClick={addSkill}
                         className="glass-effect card-hover rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-3 text-white font-semibold transition-all hover:scale-105"
                       >
-                        添加
+                        <Plus className="h-5 w-5" />
                       </button>
                     </div>
                     {(editData.skills || []).length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {(editData.skills || []).map((skill, index) => (
-                          <div
-                            key={index}
-                            className="glass-effect flex items-center gap-2 rounded-lg bg-blue-500/20 px-4 py-2 text-white"
-                          >
-                            <span>{skill}</span>
-                            <button
-                              onClick={() => removeSkill(index)}
-                              className="text-red-400 hover:text-red-300 transition-colors"
-                            >
-                              ✕
-                            </button>
-                          </div>
-                        ))}
+                      <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                        {skillCategories.map(category => {
+                          const categorySkills = (editData.skills || []).filter(s => s.category === category);
+                          if (categorySkills.length === 0) return null;
+                          return (
+                            <div key={category} className="space-y-2">
+                              <div className="text-sm font-semibold text-purple-400">{category}</div>
+                              <div className="flex flex-wrap gap-2">
+                                {categorySkills.map((skill, idx) => {
+                                  const originalIndex = (editData.skills || []).findIndex(s => s.name === skill.name && s.category === skill.category);
+                                  return (
+                                    <div
+                                      key={`${skill.name}-${skill.category}-${idx}`}
+                                      className="glass-effect flex items-center gap-2 rounded-lg bg-blue-500/20 px-4 py-2 text-white"
+                                    >
+                                      <span>{skill.name}</span>
+                                      <button
+                                        onClick={() => removeSkill(originalIndex)}
+                                        className="text-red-400 hover:text-red-300 transition-colors"
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                      </button>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     )}
                   </div>
@@ -440,125 +489,85 @@ export default function AboutPage() {
                 </div>
               )}
 
-              {/* 3D AI Network Visualization */}
-              <div className="mb-8">
-                <div className="mb-4 flex items-center justify-between">
-                  <h3 className="text-2xl font-bold text-white">
-                    🧠 AI 神经网络
+              {/* Skills Section */}
+              {(aboutData.skills || []).length > 0 && (
+                <div className="mb-8">
+                  <h3 className="mb-4 text-2xl font-bold text-white flex items-center gap-2">
+                    <span>🎯</span> 技能专长
                   </h3>
-                </div>
-                <div className="glass-effect overflow-hidden rounded-3xl border-2 border-purple-500/30" style={{ height: '600px' }}>
-                  <AINetwork3D skills={aboutData.skills} />
-                </div>
-              </div>
+                  <div className="glass-effect rounded-2xl p-6 border-2 border-purple-500/30">
+                    {/* Category Filter */}
+                    <div className="flex flex-wrap gap-2 mb-6">
+                      <button
+                        onClick={() => setSelectedCategory('全部')}
+                        className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                          selectedCategory === '全部'
+                            ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white'
+                            : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                        }`}
+                      >
+                        全部 ({(aboutData.skills || []).length})
+                      </button>
+                      {skillCategories.map(category => {
+                        const count = (aboutData.skills || []).filter(s => s.category === category).length;
+                        if (count === 0) return null;
+                        return (
+                          <button
+                            key={category}
+                            onClick={() => setSelectedCategory(category)}
+                            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                              selectedCategory === category
+                                ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white'
+                                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                            }`}
+                          >
+                            {category} ({count})
+                          </button>
+                        );
+                      })}
+                    </div>
 
-              {/* Skills & Interests - Neural Network Style */}
-              <div className="mb-8">
-                <h3 className="mb-6 text-2xl font-bold text-white">
-                  🧠 技能神经网络
-                </h3>
-                <div className="glass-effect rounded-2xl p-6 border-2 border-purple-500/30">
-                  <div className="grid gap-6 md:grid-cols-2">
-                    {/* 核心技能 */}
-                    <div className="space-y-4">
-                      <h4 className="text-lg font-bold text-purple-400 flex items-center gap-2">
-                        <span className="w-3 h-3 rounded-full bg-purple-500"></span>
-                        核心技能
-                      </h4>
-                      <div className="flex flex-wrap gap-2">
-                        {(aboutData.skills || []).length > 0 ? (
-                          (aboutData.skills || []).map((skill, index) => (
-                            <div
-                              key={index}
-                              className="px-4 py-2 rounded-full bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-purple-500/30 text-white text-sm font-medium hover:from-purple-500/30 hover:to-blue-500/30 transition-all cursor-default"
-                            >
-                              {skill}
+                    {/* Skills Grid */}
+                    {selectedCategory === '全部' ? (
+                      <div className="space-y-4">
+                        {skillCategories.map(category => {
+                          const categorySkills = (aboutData.skills || []).filter(s => s.category === category);
+                          if (categorySkills.length === 0) return null;
+                          return (
+                            <div key={category}>
+                              <div className="text-sm font-semibold text-purple-400 mb-2 flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-purple-500"></span>
+                                {category}
+                              </div>
+                              <div className="flex flex-wrap gap-2">
+                                {categorySkills.map((skill, idx) => (
+                                  <div
+                                    key={`${skill.name}-${skill.category}-${idx}`}
+                                    className="px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-purple-500/30 text-white text-sm font-medium hover:from-purple-500/30 hover:to-blue-500/30 transition-all cursor-default"
+                                  >
+                                    {skill.name}
+                                  </div>
+                                ))}
+                              </div>
                             </div>
-                          ))
-                        ) : (
-                          <p className="text-gray-400 text-sm">暂无技能点，请在编辑模式添加</p>
-                        )}
+                          );
+                        })}
                       </div>
-                    </div>
-
-                    {/* 技能统计 */}
-                    <div className="space-y-4">
-                      <h4 className="text-lg font-bold text-blue-400 flex items-center gap-2">
-                        <span className="w-3 h-3 rounded-full bg-blue-500"></span>
-                        技能统计
-                      </h4>
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <span className="text-gray-300">总技能数</span>
-                          <span className="text-white font-bold text-lg">{(aboutData.skills || []).length}</span>
-                        </div>
-                        <div className="w-full bg-gray-700 rounded-full h-2">
-                          <div 
-                            className="bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full transition-all"
-                            style={{ width: `${Math.min((aboutData.skills || []).length * 10, 100)}%` }}
-                          ></div>
-                        </div>
-                        <p className="text-gray-400 text-sm">
-                          技能熟练度: {(aboutData.skills || []).length > 0 ? '初级' : '待添加'}
-                        </p>
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        {getFilteredSkills().map((skill, idx) => (
+                          <div
+                            key={`${skill.name}-${skill.category}-${idx}`}
+                            className="px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-purple-500/30 text-white text-sm font-medium hover:from-purple-500/30 hover:to-blue-500/30 transition-all cursor-default"
+                          >
+                            {skill.name}
+                          </div>
+                        ))}
                       </div>
-                    </div>
+                    )}
                   </div>
-
-                  {/* 技能连接可视化 */}
-                  {(aboutData.skills || []).length > 0 && (
-                    <div className="mt-6 pt-6 border-t border-gray-700">
-                      <h4 className="text-lg font-bold text-green-400 mb-4 flex items-center gap-2">
-                        <span className="w-3 h-3 rounded-full bg-green-500"></span>
-                        技能关联
-                      </h4>
-                      <div className="relative h-32 bg-gray-800/50 rounded-xl overflow-hidden">
-                        <svg className="w-full h-full" viewBox="0 0 400 100">
-                          {/* 连接线 */}
-                          {(aboutData.skills || []).slice(0, 5).map((_, index) => {
-                            const x1 = 50 + (index * 70);
-                            const y1 = 50;
-                            const x2 = 50 + ((index + 1) % 5 * 70);
-                            const y2 = 50 + (index % 2 === 0 ? -20 : 20);
-                            return (
-                              <line
-                                key={`line-${index}`}
-                                x1={x1}
-                                y1={y1}
-                                x2={x2}
-                                y2={y2}
-                                stroke="rgba(139, 92, 246, 0.3)"
-                                strokeWidth="2"
-                              />
-                            );
-                          })}
-                          {/* 节点 */}
-                          {(aboutData.skills || []).slice(0, 5).map((skill, index) => (
-                            <g key={`node-${index}`}>
-                              <circle
-                                cx={50 + (index * 70)}
-                                cy={50}
-                                r="8"
-                                fill="rgba(139, 92, 246, 0.8)"
-                                className="animate-pulse"
-                              />
-                              <text
-                                x={50 + (index * 70)}
-                                y={75}
-                                textAnchor="middle"
-                                fill="white"
-                                fontSize="10"
-                              >
-                                {skill.length > 6 ? skill.substring(0, 6) + '...' : skill}
-                              </text>
-                            </g>
-                          ))}
-                        </svg>
-                      </div>
-                    </div>
-                  )}
                 </div>
-              </div>
+              )}
 
               {/* Contact Info */}
               <div className="glass-effect rounded-2xl p-6">

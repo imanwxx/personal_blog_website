@@ -47,13 +47,22 @@ export default function ImageCarousel({ items }: ImageCarouselProps) {
       >
         {items.map((item) => (
           <div key={item.id} className="w-full flex-shrink-0 relative">
-            <Image
-              src={item.src}
-              alt={item.alt}
-              fill
-              className="object-cover w-full h-full"
-              priority
-            />
+            {item.src.endsWith('.svg') ? (
+              <img
+                src={item.src}
+                alt={item.alt}
+                className="object-cover w-full h-full"
+                style={{ width: '100%', height: '100%' }}
+              />
+            ) : (
+              <Image
+                src={item.src}
+                alt={item.alt}
+                fill
+                className="object-cover w-full h-full"
+                priority
+              />
+            )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             <div className="absolute bottom-6 left-6 text-white">
               <h3 className="text-3xl font-bold mb-2">{item.title}</h3>
