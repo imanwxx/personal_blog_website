@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   personal_blog:
     build: .
@@ -12,3 +10,4 @@ services:
     restart: unless-stopped
     environment:
       - NODE_ENV=production
+      - FIGMA_ACCESS_TOKEN=figd_GEouIyLwqF1ZUNSXYbeouNmZ7oYc41ElxRwQZhDg
