@@ -1,6 +1,7 @@
 import { getAllPosts } from '@/lib/posts';
 import Link from 'next/link';
-import { ArrowLeft, Clock, Calendar } from 'lucide-react';
+import { ArrowLeft, Clock, Calendar, Flag } from 'lucide-react';
+import MilestoneMarker, { sampleMilestones } from '@/components/blog/MilestoneMarker';
 
 export const dynamic = 'force-dynamic';
 
@@ -47,6 +48,17 @@ export default async function TimelinePage() {
           </p>
         </div>
 
+        {/* Milestones Section */}
+        <div className="mb-16">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500">
+              <Flag className="h-5 w-5 text-white" />
+            </div>
+            <h2 className="text-2xl font-bold text-white">里程碑</h2>
+          </div>
+          <MilestoneMarker milestones={sampleMilestones} />
+        </div>
+
         {/* Timeline */}
         <div className="relative">
           {/* Timeline Line */}
@@ -64,7 +76,7 @@ export default async function TimelinePage() {
 
               {/* Posts for this year */}
               <div className="space-y-4 ml-8">
-                {postsByYear[year].map((post, index) => {
+                {postsByYear[year].map((post) => {
                   const date = new Date(post.date);
                   const month = date.toLocaleDateString('zh-CN', { month: 'short' });
                   const day = date.getDate();

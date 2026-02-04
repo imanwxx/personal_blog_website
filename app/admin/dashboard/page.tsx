@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Plus, Trash2, Edit, LogOut, Rocket, FileText, Star } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -260,7 +261,7 @@ export default function AdminDashboard() {
             管理员面板
           </h1>
           <p className="mt-2 text-gray-400">
-            管理您的博客文章
+            管理您的博客内容
           </p>
         </div>
         <div className="flex gap-3">
@@ -279,6 +280,60 @@ export default function AdminDashboard() {
             退出登录
           </button>
         </div>
+      </div>
+
+      {/* Quick Links */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <Link
+          href="/admin/projects"
+          className="glass-effect card-hover rounded-2xl p-6 border border-gray-700 hover:border-blue-500/50 transition-all"
+        >
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500">
+              <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-white">项目管理</h3>
+              <p className="text-sm text-gray-400">管理项目展示内容</p>
+            </div>
+          </div>
+        </Link>
+
+        <Link
+          href="/admin/essays"
+          className="glass-effect card-hover rounded-2xl p-6 border border-gray-700 hover:border-pink-500/50 transition-all"
+        >
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-pink-500 to-purple-500">
+              <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-white">随笔管理</h3>
+              <p className="text-sm text-gray-400">管理随笔和感悟</p>
+            </div>
+          </div>
+        </Link>
+
+        <Link
+          href="/about"
+          className="glass-effect card-hover rounded-2xl p-6 border border-gray-700 hover:border-green-500/50 transition-all"
+        >
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-green-500 to-teal-500">
+              <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-white">关于我</h3>
+              <p className="text-sm text-gray-400">编辑个人资料</p>
+            </div>
+          </div>
+        </Link>
       </div>
 
       {/* Posts List */}

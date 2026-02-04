@@ -1,0 +1,30 @@
+# 部署文件清单
+
+## 需要上传到服务器的文件和目录：
+
+### 必需目录：
+1. .next/          - Next.js 构建输出目录
+2. public/         - 静态资源目录
+3. posts/          - Markdown 文章目录
+
+### 必需文件：
+4. package.json           - 项目依赖配置
+5. package-lock.json      - 依赖锁定文件
+6. next.config.ts         - Next.js 配置文件
+7. Dockerfile             - Docker 镜像构建文件
+8. docker-compose.yml     - Docker Compose 配置
+9. deploy.sh              - 部署脚本
+10. DEPLOY_GUIDE.md       - 部署指南
+
+## 部署步骤：
+
+1. 将上述文件和目录上传到服务器 /root/personal_blog
+2. 在服务器上执行：
+   cd /root/personal_blog
+   chmod +x deploy.sh
+   ./deploy.sh
+
+## 或者手动部署：
+
+docker build -t personal_blog:latest .
+docker run -d --name personal_blog --restart unless-stopped -p 3000:3000 -v /root/personal_blog_data:/app/data personal_blog:latest

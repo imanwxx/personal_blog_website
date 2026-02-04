@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
-import { Calendar, Tag, ArrowRight, Rocket } from 'lucide-react';
+import { Calendar, Tag, ArrowRight, Rocket, Star } from 'lucide-react';
 
 interface PostCardProps {
   slug: string;
@@ -11,6 +11,7 @@ interface PostCardProps {
   tags: string[];
   category: string;
   coverImage?: string;
+  featured?: boolean;
 }
 
 export default function PostCard({
@@ -21,6 +22,7 @@ export default function PostCard({
   tags,
   category,
   coverImage,
+  featured = false,
 }: PostCardProps) {
   return (
     <Link href={`/posts/${slug}`}>
@@ -34,6 +36,15 @@ export default function PostCard({
               className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+            {/* Featured Badge */}
+            {featured && (
+              <div className="absolute top-4 right-4">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 px-3 py-1 text-sm font-semibold text-white shadow-md">
+                  <Star className="h-3.5 w-3.5 fill-current" />
+                  精选
+                </span>
+              </div>
+            )}
             {/* Category Badge */}
             <div className="absolute top-4 left-4">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 px-4 py-1.5 text-sm font-semibold text-white shadow-md glow-effect">

@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, FolderGit2, ExternalLink, Github, Star, Calendar } from 'lucide-react';
+import { ArrowLeft, FolderGit2, ExternalLink, Github, Star, Calendar, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 
 interface Project {
@@ -18,52 +18,28 @@ interface Project {
   featured?: boolean;
 }
 
-const projects: Project[] = [
-  {
-    id: '1',
-    title: '个人博客系统',
-    description: '基于 Next.js 和 Tailwind CSS 构建的现代化个人博客系统，支持 Markdown 文章、评论系统、管理员后台等功能。',
-    image: 'https://picsum.photos/seed/blog/800/400',
-    tags: ['Next.js', 'TypeScript', 'Tailwind CSS', 'React'],
-    githubUrl: 'https://github.com/imanwxx/personal_blog_website',
-    stars: 42,
-    date: '2026-01-15',
-    featured: true,
-  },
-  {
-    id: '2',
-    title: '机器人控制系统',
-    description: '使用 ROS2 和 Python 开发的机器人控制系统，支持路径规划、SLAM 建图和自主导航功能。',
-    image: 'https://picsum.photos/seed/robot/800/400',
-    tags: ['ROS2', 'Python', 'C++', 'SLAM'],
-    githubUrl: 'https://github.com/imanwxx/robot-control',
-    stars: 28,
-    date: '2025-11-20',
-  },
-  {
-    id: '3',
-    title: '强化学习仿真环境',
-    description: '基于 Isaac Gym 和 PyTorch 的强化学习训练环境，用于四足机器人的运动控制学习。',
-    image: 'https://picsum.photos/seed/rl/800/400',
-    tags: ['PyTorch', 'Isaac Gym', 'RL', 'MuJoCo'],
-    githubUrl: 'https://github.com/imanwxx/rl-sim',
-    stars: 35,
-    date: '2025-09-10',
-    featured: true,
-  },
-  {
-    id: '4',
-    title: '3D CAD 设计工具',
-    description: '基于 WebGL 的在线 3D CAD 设计工具，支持基础建模、装配和渲染功能。',
-    image: 'https://picsum.photos/seed/cad/800/400',
-    tags: ['Three.js', 'WebGL', 'TypeScript', 'CAD'],
-    demoUrl: 'https://cad-demo.example.com',
-    date: '2025-07-05',
-  },
-];
-
 export default function ProjectsPage() {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<string>('all');
+
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
+  const fetchProjects = async () => {
+    try {
+      const response = await fetch('/api/projects');
+      if (response.ok) {
+        const data = await response.json();
+        setProjects(data);
+      }
+    } catch (error) {
+      console.error('获取项目失败:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const allTags = Array.from(new Set(projects.flatMap(p => p.tags)));
   
@@ -74,6 +50,16 @@ export default function ProjectsPage() {
     : projects.filter(p => p.tags.includes(filter));
 
   const featuredProjects = projects.filter(p => p.featured);
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-12">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-12">

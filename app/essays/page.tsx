@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, PenTool, Calendar, Tag, Heart, MessageCircle } from 'lucide-react';
+import { ArrowLeft, PenTool, Calendar, Tag, Heart, MessageCircle, Loader2 } from 'lucide-react';
 
 interface Essay {
   id: string;
@@ -15,68 +15,71 @@ interface Essay {
   mood?: string;
 }
 
-const essays: Essay[] = [
-  {
-    id: '1',
-    title: '关于深度学习的思考',
-    content: '最近在学习深度学习的过程中，有一些感悟想记录下来。神经网络就像是我们大脑的一个缩影，每一层都在提取不同层次的特征...',
-    date: '2026-02-01',
-    tags: ['深度学习', 'AI', '思考'],
-    likes: 23,
-    comments: 5,
-    mood: '🤔',
-  },
-  {
-    id: '2',
-    title: '周末的机器人实验',
-    content: '这个周末花了整整两天时间在实验室调试机器人。虽然遇到了很多问题，但看到机器人终于能稳定行走的那一刻，所有的辛苦都值得了...',
-    date: '2026-01-25',
-    tags: ['机器人', '实验', '周末'],
-    likes: 45,
-    comments: 12,
-    mood: '🤖',
-  },
-  {
-    id: '3',
-    title: '新项目的构想',
-    content: '昨晚失眠，脑海中突然冒出一个新项目的想法。想要做一个结合强化学习和计算机视觉的智能系统，可以自动识别并操作物体...',
-    date: '2026-01-18',
-    tags: ['项目', '创意', 'RL'],
-    likes: 38,
-    comments: 8,
-    mood: '💡',
-  },
-  {
-    id: '4',
-    title: '读《机器人学导论》有感',
-    content: '终于读完了这本经典教材。书中对运动学和动力学的讲解非常清晰，特别是关于雅可比矩阵的部分，让我对机器人的控制有了更深的理解...',
-    date: '2026-01-10',
-    tags: ['读书', '机器人学', '学习'],
-    likes: 52,
-    comments: 15,
-    mood: '📚',
-  },
-  {
-    id: '5',
-    title: '生活中的小确幸',
-    content: '今天天气很好，下午在校园里散步，看到樱花开了。突然意识到，在忙碌的学习和研究之余，也要学会享受生活的美好...',
-    date: '2026-01-05',
-    tags: ['生活', '感悟', '樱花'],
-    likes: 67,
-    comments: 20,
-    mood: '🌸',
-  },
-];
-
-const allTags = Array.from(new Set(essays.flatMap(e => e.tags)));
-
 export default function EssaysPage() {
+  const [essays, setEssays] = useState<Essay[]>([]);
+  const [allTags, setAllTags] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<string>('all');
   const [selectedEssay, setSelectedEssay] = useState<Essay | null>(null);
+
+  useEffect(() => {
+    fetchEssays();
+    fetchTags();
+  }, []);
+
+  const fetchEssays = async () => {
+    try {
+      const response = await fetch('/api/essays');
+      if (response.ok) {
+        const data = await response.json();
+        setEssays(data);
+      }
+    } catch (error) {
+      console.error('获取随笔失败:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchTags = async () => {
+    try {
+      const response = await fetch('/api/tags');
+      if (response.ok) {
+        const data = await response.json();
+        setAllTags(data);
+      }
+    } catch (error) {
+      console.error('获取标签失败:', error);
+    }
+  };
+
+  const handleLike = async (essayId: string) => {
+    try {
+      const response = await fetch(`/api/essays?action=like&id=${essayId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setEssays(essays.map(e => 
+          e.id === essayId ? { ...e, likes: data.likes } : e
+        ));
+      }
+    } catch (error) {
+      console.error('点赞失败:', error);
+    }
+  };
 
   const filteredEssays = filter === 'all' 
     ? essays 
     : essays.filter(e => e.tags.includes(filter));
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-12">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Loader2 className="h-8 w-8 animate-spin text-pink-500" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -173,10 +176,16 @@ export default function EssaysPage() {
                 </div>
 
                 <div className="flex items-center gap-4 text-gray-400">
-                  <div className="flex items-center gap-1">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleLike(essay.id);
+                    }}
+                    className="flex items-center gap-1 hover:text-pink-400 transition-colors"
+                  >
                     <Heart className="h-4 w-4" />
                     <span className="text-sm">{essay.likes}</span>
-                  </div>
+                  </button>
                   <div className="flex items-center gap-1">
                     <MessageCircle className="h-4 w-4" />
                     <span className="text-sm">{essay.comments}</span>

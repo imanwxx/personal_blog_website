@@ -17,4 +17,8 @@ export interface Comment {
   content: string;
   date: string;
   replyTo?: string;
+  parentId?: string;
+  likes: number;
+  likedBy: string[];
+  replies?: Comment[];
 }
